@@ -1,57 +1,47 @@
 {
-  "name": "my-playwright-next",
+  "name": "playwright-next",
   "version": "0.1.0",
   "private": true,
-  "main": "main.js",
+  "type": "module",
+  "main": "./main.js",
   "scripts": {
     "dev": "next dev",
+    "dev:electron": "NODE_ENV=production electron .",
     "build": "next build",
-    "start": "next start",
-    "electron:dev": "cross-env NODE_ENV=development electron .",
-    "electron:build": "npm run build && cross-env NODE_ENV=production electron-builder --mac"
+    "build:electron": "NODE_ENV=production electron-builder"
   },
   "build": {
-    "appId": "com.yourname.nextjs-electron",
-    "productName": "My NextJS App",
-    "mac": {
-      "category": "public.app-category.productivity",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "icons/icon.icns"
+    "appId": "com.example.electron-next",
+    "productName": "ElectronNextDemo",
+    "asar": false,
+    "directories": {
+      "output": "dist"
     },
     "files": [
       "main.js",
       ".next/**/*",
-      "node_modules/**/*",
       "package.json",
-      "public/**/*"
+      "!**/*.md",
+      "!&zwnj;**/node_modules/**&zwnj;/{test,tests,examples}"
     ],
-    "directories": {
-      "output": "dist"
-    },
-    "asar": true
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "default",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    }
   },
   "dependencies": {
-    "next": "16.1.3",
+    "next": "16.1.6",
+    "playwright": "1.44.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.3",
-    "playwright": "^1.57.0",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "cross-env": "^7.0.3",
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.1",
-    "tree-kill": "^1.2.2",
-    "wait-on": "^7.0.1"
+    "babel-plugin-react-compiler": "1.0.0",
+    "electron": "40.0.0",
+    "electron-builder": "26.4.0",
+    "tailwindcss": "^4"
   }
 }

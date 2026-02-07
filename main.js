@@ -1,123 +1,88 @@
 import { app, BrowserWindow } from 'electron';
-import { join } from 'path';
-import { spawn } from 'child_process';
-import treeKill from 'tree-kill';
-import waitOn from 'wait-on';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-// 全局变量：存储 Next.js 服务进程
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename)
+
+
+
 let nextProcess = null;
 let mainWindow = null;
+const NEXT_URL = 'http://localhost:3000';
 
-// 配置：Next.js 服务端口和 URL
-const NEXT_PORT = 3000;
-const NEXT_URL = `http://localhost:${NEXT_PORT}`;
-
-// 判断环境：开发/生产
-const isDev = process.env.NODE_ENV === 'development';
-
-// 启动 Next.js 服务
-function startNextServer() {
-  return new Promise((resolve, reject) => {
-    // 确定 Next.js 启动命令（开发/生产区分）
-    const cmd = isDev ? 'next' : 'node';
-    const args = isDev 
-      ? ['dev', '-p', NEXT_PORT] // 开发环境：next dev -p 3000
-      : [join(__dirname, 'node_modules/next/dist/bin/next'), 'start', '-p', NEXT_PORT]; // 生产环境：next start -p 3000
-
-    // 启动子进程
-    nextProcess = spawn(cmd, args, {
-      cwd: __dirname, // 工作目录为项目根目录
-      stdio: isDev ? 'inherit' : 'ignore', // 开发环境打印日志，生产环境忽略
-      env: {
-        ...process.env,
-        PORT: NEXT_PORT,
-        NODE_ENV: isDev ? 'development' : 'production',
-      },
-    });
-
-    // 监听进程错误
-    nextProcess.on('error', (err) => {
-      console.error('Next.js 服务启动失败：', err);
-      reject(err);
-    });
-
-    // 等待 Next.js 服务端口可用
-    waitOn({ 
-      resources: [`tcp:localhost:${NEXT_PORT}`],
-      timeout: 10000, // 超时时间 10 秒
-    }, (err) => {
-      if (err) {
-        console.error('等待 Next.js 服务超时：', err);
-        reject(err);
-      } else {
-        console.log('Next.js 服务启动成功：', NEXT_URL);
-        resolve();
-      }
-    });
-  });
-}
 
 // 创建 Electron 窗口
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false, // 生产环境建议开启，开发环境可关闭
-    },
-  });
+    mainWindow = new BrowserWindow({
+        width: 1200,
+        height: 800,
+        webPreferences: {
+            nodeIntegration: true, // 安全最佳实践：关闭 Node 集成
+            contextIsolation: false, // 开启上下文隔离
+            enableRemoteModule: true, 
+        }
+    });
 
-  // 加载 Next.js 服务的 URL（核心）
-  mainWindow.loadURL(NEXT_URL);
+    mainWindow.loadURL(NEXT_URL).catch(err => {
+        console.error('加载 Next.js 服务失败：', err);
+        mainWindow.loadURL('data:text/html,<p> server error </p>')
+    });
 
-  // 开发环境打开调试工具
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  }
+    mainWindow.webContents.openDevTools(); // 开发者工具
 
-  // 窗口关闭时清理
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+    // 窗口关闭时，终止 Next.js 服务进程
+    mainWindow.on('closed', () => {
+        if (nextProcess) {
+            nextProcess.kill(); // 杀死 Next 服务进程
+            nextProcess = null;
+        }
+    });
 }
 
-// 应用启动逻辑
+async function startNextProductionServer() {
+    const next = (await import('next')).default
+    const nextApp = next({
+        dev: false,
+        dir: __dirname,
+        quiet: true,
+    })
+
+    await nextApp.prepare()
+
+    const handle = nextApp.getRequestHandler()
+    const { createServer } = await import('http')
+    const server = createServer((req, res) => {
+        handle(req, res)
+    })
+    return new Promise((resolve, reject) => {
+        server.listen(3000, "localhost", (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    })
+}
+
 app.whenReady().then(async () => {
-  try {
-    // 先启动 Next.js 服务，再创建窗口
-    await startNextServer();
+    await startNextProductionServer();
     createWindow();
-  } catch (err) {
-    console.error('应用启动失败：', err);
-    app.quit();
-  }
 });
 
-// 所有窗口关闭时终止 Next.js 服务
+// 关闭所有窗口时退出应用（并清理 Next 服务）
 app.on('window-all-closed', () => {
-  // 杀死 Next.js 子进程（包括子进程的子进程）
-  if (nextProcess) {
-    treeKill(nextProcess.pid);
-    nextProcess = null;
-  }
-  // Mac 下保留应用，其他系统退出
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    if (nextProcess) {
+        nextProcess.kill();
+    }
+    if (process.platform !== 'darwin') app.quit();
 });
 
-// Mac 点击 Dock 图标重新创建窗口
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-
-// 应用退出时确保杀死 Next.js 服务
-app.on('before-quit', () => {
-  if (nextProcess) {
-    treeKill(nextProcess.pid);
-  }
-});
+// 重新点图标
+app.on("activate", async () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        await startNextProductionServer();
+        createWindow();
+    }
+})
