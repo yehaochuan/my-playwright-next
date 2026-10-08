@@ -1,82 +1,17 @@
-# electron-builder.yml（项目根目录）
-# ===================== 基础应用信息 =====================
-appId: com.example.electron-next  # 应用唯一标识（反向域名格式，如苹果开发者ID）
-productName: ElectronNextDemo     # 应用显示名称（打包后桌面/安装包显示的名称）
-# copyright: Copyright © 2026 ${author}  # 版权信息（${author} 读取 package.json 的 author）
+# electron-builder.yml
+appId: com.yourcompany.appname
+productName: NextElectron
 directories:
-  output: dist                    # 打包产物输出目录（默认 dist）
-  buildResources: resources         # 打包资源目录（存放图标、安装包样式等，默认 build）
-  # app: .                          # 应用源码根目录（默认项目根目录）
-
-# ===================== 多平台打包配置 =====================
-# macOS 配置（dmg 安装包/zip 免安装包）
+  output: dist
+  buildResources: resources
 mac:
-  target: 
-    - dmg       # 生成 dmg 安装包（macOS 主流）
-    - zip       # 生成 zip 免安装包（备用）
-  icon: build/icon.icns           # macOS 应用图标（.icns 格式，放 build 目录）
-  category: public.app-category.developer-tools  # macOS 应用分类（应用商店用）
-  hardenedRuntime: true           # 启用 macOS 强化运行时（安全要求）
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+    - zip
+  icon: resources/icon.icns
+  hardenedRuntime: true
   entitlements: resources/entitlements.mac.plist
-
-# Windows 配置（exe 安装包/portable 免安装包）
-# win:
-#   target:
-#     - nsis     # 生成 exe 安装包（Windows 主流，支持下一步安装）
-#     - portable # 生成免安装 exe（直接运行，无需安装）
-#   icon: build/icon.ico            # Windows 应用图标（.ico 格式，放 build 目录）
-#   requestedExecutionLevel: asInvoker  # 权限级别（asInvoker=当前用户权限，无需管理员）
-#   # NSIS 安装包自定义（安装界面、路径、快捷方式等）
-#   nsis:
-#     oneClick: false               # 关闭一键安装（让用户选择安装路径）
-#     allowToChangeInstallationDirectory: true # 允许用户修改安装目录
-#     createDesktopShortcut: true   # 创建桌面快捷方式
-#     createStartMenuShortcut: true # 创建开始菜单快捷方式
-#     shortcutName: ElectronNext    # 快捷方式名称
-
-# # Linux 配置（deb/rpm 安装包）
-# linux:
-#   target:
-#     - deb      # Debian/Ubuntu 系统安装包
-#     - rpm      # RedHat/CentOS 系统安装包
-#   icon: build/icon.png            # Linux 图标（.png 格式）
-#   category: Utility               # Linux 应用分类
-
-# ===================== 文件/依赖配置（核心！适配 Next.js） =====================
-# files:
-#   # 包含的文件（打包时要包含的源码/产物）
-#   - from: .
-#     to: .
-#     filter:
-#       - package.json
-#       - electron/**/*             # Electron 主进程代码
-#       - .next/**/*                # Next.js 构建产物（关键！）
-#       - node_modules/**/*         # 依赖包
-#   # 排除的文件（避免打包冗余内容，减小体积）
-#   - filter:
-#       - !node_modules/**/*.md     # 排除依赖中的 md 文件
-#       - !node_modules/**/*.map    # 排除依赖中的 map 文件
-#       - !src/**/*                 # 若有未编译的源码，排除
-#       - !.git/**/*                # 排除 git 目录
-#       - !.env*                    # 排除环境变量文件
-#       - !electron-builder.yml     # 排除配置文件本身
-
-# 依赖优化（减小打包体积）
-
-# ===================== 额外功能配置 =====================
-# 自动更新（可选，需配合 electron-updater）
-# publish:
-#   provider: github                # 自动更新的仓库源（GitHub/GitLab/自定义服务器）
-#   repo: electron-next-demo        # GitHub 仓库名
-#   owner: your-github-username     # GitHub 用户名
-#   private: false                  # 是否私有仓库
-
-# asar 压缩（默认开启，将源码打包为 asar 文件，防止源码泄露）
-# asar: true
-# asarUnpack:
-#   - node_modules/next/**/*        # Next.js 依赖不压缩（避免运行时读取失败）
-#   - .next/standalone/**/*         # Next.js 独立运行产物不压缩
-
-# 构建后钩子（可选，打包完成后执行脚本）
-# afterPack:
-#   - script: scripts/after-pack.js # 自定义脚本（如修改安装包内容）
+  extendInfo:
+    NSRequiresAquaSystemAppearance: false # 支持深色模式
+  minimumSystemVersion: '10.15' # Catalina 以上

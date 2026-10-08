@@ -1,0 +1,169 @@
+@import "tailwindcss";
+:root {
+  --background: #ecf0f3;
+  --foreground: #171717;
+  --shandowdown: 2px 2px 2px #d1d9e6 inset, -2px -2px 2px #fff inset;
+  --shandowup: : 1px 1px 2px 0.2px #0003, -1px -1px 1px 0.8px #fff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+button {
+  border: 1px solid #0496d5;
+  color: #0496d5;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer !important;
+  font-size: 14px;
+  height: 36px;
+  box-shadow:
+    1px 1px 2px 0.2px #0003,
+    -1px -1px 1px 0.8px #fff;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+button:hover {
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset !important;
+}
+
+input,
+select {
+  padding: 2px;
+  border-radius: 4px;
+  margin-right: 12px;
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset !important;
+}
+
+input:focus {
+  outline: none;
+}
+
+.shandowup {
+  box-shadow:
+    1px 1px 2px 0.2px #0003,
+    -1px -1px 1px 0.8px #fff;
+  padding: 6px 12px;
+  border-radius: 5px;
+}
+
+.shandowdown {
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset;
+  padding: 6px 12px;
+  border-radius: 5px;
+}
+
+header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+.hoverdown:hover {
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset;
+  cursor: pointer;
+}
+
+.layout {
+  width: 100%;
+  height: calc(100vh - 60px);
+  display: flex;
+}
+.menu {
+  height: 100%;
+  width: 200px;
+  margin: 12px;
+  height: calc(100% - 24px);
+  box-sizing: border-box;
+  padding: 12px;
+  font-size: 14px;
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset;
+}
+
+.menu > div {
+  margin-bottom: 12px;
+}
+
+.content {
+  width: calc(100% - 24px);
+  margin: 12px;
+  box-sizing: border-box;
+  height: calc(100% - 24px);
+  box-shadow:
+    2px 2px 2px #d1d9e6 inset,
+    -2px -2px 2px #fff inset;
+  overflow: auto;
+}
+
+.inlineblock {
+  display: inline-block;
+}
+
+.loading {
+  border: 3px solid #f3f3f3; /* 加载指示器的边框颜色 */
+  border-top: 3px solid #3498db; /* 加载指示器的旋转颜色 */
+  border-radius: 50%; /* 圆形 */
+  width: 20px; /* 宽度 */
+  height: 20px; /* 高度 */
+  animation: spin 1s linear infinite; /* 应用动画 */
+}
+
+/* 定义旋转动画 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.flex-1 {
+  display: flex;
+  box-shadow:
+    1px 1px 2px 0.2px #0003,
+    -1px -1px 1px 0.8px #fff;
+}
+.flex-1 > div {
+  flex: 1;
+  text-align: center;
+}
+.flex-1 > div:not(:last-of-type) {
+  border-right: 1px solid #babcbc;
+}
+
+.text-tips {
+  position: relative;
+  border: 1px dashed red;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 6px;
+  padding: 0 12px !important;
+  left: 12px;
+  color: red;
+}
+.text-tips::before {
+  content: "<";
+  left: -8px;
+  position: absolute;
+  color: red;
+  font-size: 13px;
+  line-height: 26px;
+}
